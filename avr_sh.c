@@ -60,7 +60,7 @@ void avr_sh_loop(void)
     // Parse input
     // Exec
 
-    int status = 0; // Status of input
+    int status = 1; // Status of input
 
     do
     {
@@ -88,7 +88,7 @@ void avr_sh_loop(void)
  */
 int main(int argc, char **argv)
 {
-    printf("Starting AVR Shell!\n");
+    printf("\033[1;35mStarting AVR Shell!\033[0m\n"); // Bold-Magenta ANSI code
     if(argc != 0)
     {
         printf("AVR Shell Arguments:\n");
