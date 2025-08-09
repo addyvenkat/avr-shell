@@ -7,14 +7,105 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAX_LINE_LENGTH 1024
 #define MAX_ARGS 64
 
-// int avr_sh_parseLine(char * line, int line_size, char ** args)
-// {
+#ifdef DEBUG_PRINTS_ENABLED
+#define DEBUG_PRINT(format, ...) \
+    do { \
+        printf("[DEBUG][%s:%d] " format, __FILE__, __LINE__, __VA_ARGS__); \
+    }while(0)
+#else
+#define DEBUG_PRINT(fmt, ...) do {} while(0)
+#endif // DEBUG_PRINTS_ENABLED
+    
 
-// }
+#define BOLD_RED "\033[1;31m"
+#define BOLD_MAGENTA "\033[1;35m"
+#define CYAN "\033[36m"
+#define DEFAULT "\033[0m"
+
+/**
+ * @brief Executes command
+ * @param argc argument count
+ * @param argv Array of args
+ * @return None
+ */
+void avr_sh_execute(int argc, char ** argv)
+{
+    if(strcmp(argv[0], "exit") == 0)
+    {
+        if(argc > 1)
+        {
+            fprintf(stderr, "%savr_sh_execute: \"exit\" command doesn't need additional args\n%s", BOLD_RED, DEFAULT);
+            exit(EXIT_FAILURE); // Exit shell with failure
+        }
+        exit(EXIT_SUCCESS); // Exit the shell with success
+    }
+    else if(strcmp(argv[0], "help") == 0)
+    {
+        if(argc > 1)
+        {
+            fprintf(stderr, "%savr_sh_execute: \"help\" command doesn't need additional args %s:%d\n%s", BOLD_RED, __FILE__, __LINE__, DEFAULT);
+        }
+        else
+        {
+            printf("AVR SHELL:\n");
+            printf("exit - Exiting the shell\n");
+            printf("help - Lists supported commands\n");
+        }
+    }
+    else
+    {
+        DEBUG_PRINT("%s():TODO\n", __func__);
+    }
+}
+
+/**
+ * @brief Parse user input into tokens
+ * @param line Char pointer for the line
+ * @param args array maintaining different token c-strings
+ * @param maxArgs Maximum number of Arguments
+ * @return number of arguments (tokens)
+ */
+int parseLine(char * line, char ** args, size_t maxArgs)
+{
+    size_t argCount = 0;
+
+    // Skip leading spaces
+    while (*line && isspace((unsigned char)*line)) line++;
+
+    char * startPtr = line;
+    char * spacePtr = line;
+    while(startPtr && (argCount < maxArgs) )
+    {
+        startPtr = spacePtr;
+        if(!startPtr)
+        {
+            break;
+        }
+        spacePtr = strchr(startPtr, ' ');
+        if(spacePtr)
+        {
+            *spacePtr = '\0';
+            spacePtr++;
+        }
+        if(startPtr)
+        {
+            args[argCount++] = startPtr;
+        }
+    }
+
+    DEBUG_PRINT("Tokens (%zu): \n", argCount);
+    for(int i = 0; i < (int)argCount; i++)
+    {
+        DEBUG_PRINT("%s\n", args[i]);
+    }
+
+    return (int)argCount;
+}
 
 /**
  * @brief Reads user input
@@ -22,11 +113,11 @@
  * @param line_size Size of the line
  * @return None
  */
-void avr_sh_readLine(char * line, size_t line_size)
+void readLine(char * line, size_t line_size)
 {
     if(line==NULL)
     {
-        fprintf(stderr, "avr_sh_readLine: line is NULL in %s:%d\n", __FILE__, __LINE__);
+        fprintf(stderr, "%sreadLine: line is NULL in %s:%d\n%s", BOLD_RED, __FILE__, __LINE__, DEFAULT);
         exit(EXIT_FAILURE);
     }
     
@@ -47,7 +138,7 @@ void avr_sh_readLine(char * line, size_t line_size)
         line[line_size-1] = '\0'; // Input line, exceeded max characters, make it a C-string
     }
     
-    printf("Input Line: %s\n", line);
+    DEBUG_PRINT("Input Line: %s\n", line);
 }
 
 /**
@@ -65,17 +156,25 @@ void avr_sh_loop(void)
     do
     {
         // Display prompt in Cyan color
-        printf("\033[36mavr_sh$> \033[0m");
+        printf("%savr_sh$> %s", CYAN, DEFAULT);
         
         // Read line
         char lineBuf[MAX_LINE_LENGTH];
-        memset(lineBuf, 0, MAX_LINE_LENGTH);
-        avr_sh_readLine(lineBuf, (size_t)MAX_LINE_LENGTH);
+        memset(lineBuf, 0, sizeof(lineBuf));
+        readLine(lineBuf, (size_t)MAX_LINE_LENGTH);
 
         // Parse Args
         char * argsBuf[MAX_ARGS];
-        memset(argsBuf, 0, MAX_ARGS);
-        // int numArgs = avr_sh_parseLine(lineBuf, strlen(lineBuf), argsBuf);
+        memset(argsBuf, 0, sizeof(argsBuf));
+        int numArgs = parseLine(lineBuf, argsBuf, (size_t)MAX_ARGS);
+        
+        if(numArgs == 0)
+        {
+            continue;
+        }
+
+        // Execute
+        avr_sh_execute(numArgs, argsBuf);
     
     } while(status);
 }
@@ -88,13 +187,13 @@ void avr_sh_loop(void)
  */
 int main(int argc, char **argv)
 {
-    printf("\033[1;35mStarting AVR Shell!\033[0m\n"); // Bold-Magenta ANSI code
+    printf("%sStarting AVR Shell!%s\n", BOLD_MAGENTA, DEFAULT); // Bold-Magenta ANSI code
     if(argc != 0)
     {
-        printf("AVR Shell Arguments:\n");
+        DEBUG_PRINT("%s(): AVR Shell Arguments:\n", __func__);
         for(int i=0; i < argc; i++)
         {
-            printf("%s\n", argv[i]);
+            DEBUG_PRINT("%s\n", argv[i]);
         }
     }
     

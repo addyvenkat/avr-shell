@@ -1,7 +1,7 @@
 # Makefile to build avr_sh target
 
 CXX=clang
-CFLAGS = -g -Wall -Wextra -Werror -pedantic-errors
+CFLAGS = -g -Wall -Wextra -Werror -pedantic-errors -DDEBUG_PRINTS_ENABLED
 
 DEPS=
 
