@@ -113,7 +113,8 @@ void avr_sh_cd(int argc, char ** argv)
     // Save current cwd to update OLDPWD after a successful chdir
     oldcwd = getcwd(NULL, 0); // dynamic; may be NULL if cwd unreadable
 
-    if (chdir(dest) != 0) {
+    if (chdir(dest) != 0)
+    {
         perror("cd");
         free(dest_owned);
         free(oldcwd);
@@ -121,15 +122,25 @@ void avr_sh_cd(int argc, char ** argv)
     }
 
     newcwd = getcwd(NULL, 0);
-    if (newcwd) {
-        if (oldcwd) setenv("OLDPWD", oldcwd, 1);
+    if (newcwd)
+    {
+        if (oldcwd)
+        {
+            setenv("OLDPWD", oldcwd, 1);
+        }
         setenv("PWD", newcwd, 1);
     }
 
     // POSIX shells print the new dir for "cd -"
-    if (argc == 2 && strcmp(argv[1], "-") == 0) {
+    if (argc == 2 && strcmp(argv[1], "-") == 0)
+    {
         printf("%s\n", newcwd ? newcwd : dest);
     }
+
+    // TODO: Dummy free; check for memory leaks
+    free(dest);
+    free(oldcwd);
+    free(newcwd);
 }
 
 /**
