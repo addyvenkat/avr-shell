@@ -1,25 +1,31 @@
-# Makefile to build avr_sh target
+# Makefile to build avr_sh target (C)
 
-CXX=clang
-CFLAGS = -g -Wall -Wextra -Werror -pedantic-errors -DDEBUG_PRINTS_ENABLED
+CC      = clang
+CFLAGS  = -std=c11 -g -Wall -Wextra -Werror -pedantic-errors -DDEBUG_PRINTS_ENABLED
 
-DEPS=
+# generate header dependencies
+CFLAGS += -MMD -MP
 
-TARGET=avr_sh
+TARGET  = avr_sh
+SRCS    = avr_sh.c avr_sh_builtins.c avr_sh_helper.c
+OBJS    = $(SRCS:.c=.o)
+DEPS    = avr_sh_headers.h avr_sh_helper.h avr_sh_builtins.h
 
-OBJ=${TARGET}.o
+all: $(TARGET)
 
-all: ${TARGET}
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $@
 
-${TARGET}: ${OBJ}
-	${CXX} -o $@ $^ ${CFLAGS}
-
-%.o: %.c ${DEPS}
-	${CXX} -c -o $@ $< ${CFLAGS}
+%.o: %.c $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf *.o ${TARGET}
+	rm -f $(OBJS) $(TARGET) $(OBJS:.o=.d)
 
+.PHONY: all clean
+
+# include auto-generated header dependency files
+-include $(OBJS:.o=.d)
 
 # $@ - Target
 # $^ - All prereqs
