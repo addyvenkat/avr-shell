@@ -6,6 +6,26 @@
 
 #include "avr_sh_builtins.h"
 
+/**
+ * @brief "pwd" - Print working directory
+ * @param argc argument count
+ * @return None
+ */
+void avr_sh_pwd(int argc)
+{
+    if (argc > 1)
+    {
+        fprintf(stderr, "%savr_sh_pwd: \"pwd\" expects no additional argument\n%s",
+                BOLD_RED, DEFAULT);
+        return;
+    }
+
+    char * cwd = getcwd(NULL, 0);
+    printf("%s\n", cwd);
+
+    free(cwd);
+}
+
 static void avr_sh_lsDir(const char* path, bool show_all)
 {
     struct dirent ** namelist = NULL;

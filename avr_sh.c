@@ -36,8 +36,9 @@ void avr_sh_execute(int argc, char ** argv)
             printf("AVR SHELL:\n");
             printf("exit - Exiting the shell\n");
             printf("help - Lists supported commands\n");
-            printf("cd - Change Directory\n");
+            printf("cd - Change directory\n");
             printf("ls - List directory content\n");
+            printf("pwd - Print current working directory");
         }
     }
     else if(strcmp(argv[0], "cd") == 0)
@@ -47,6 +48,10 @@ void avr_sh_execute(int argc, char ** argv)
     else if (strcmp(argv[0], "ls") == 0)
     {
         avr_sh_ls(argc, argv);
+    }
+    else if(strcmp(argv[0], "pwd") == 0)
+    {
+        avr_sh_pwd(argc);
     }
     else
     {

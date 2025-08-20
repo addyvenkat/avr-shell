@@ -21,3 +21,10 @@ void avr_sh_cd(int argc, char ** argv);
  * @return None
  */
 void avr_sh_ls(int argc, char ** argv);
+
+/**
+ * @brief "pwd" - Print working directory
+ * @param argc argument count
+ * @return None
+ */
+void avr_sh_pwd(int argc);
